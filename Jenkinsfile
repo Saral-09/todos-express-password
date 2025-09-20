@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    environment {
-        APP_DIR = "/home/adminuser/project/todos-express-password"
-    }
-
     stages {
         stage('Checkout') {
             steps {
@@ -15,20 +11,21 @@ pipeline {
             }
         }
 
-    stage('Build') {
-        steps {
-            echo 'Installing dependencies...'
-            dir("${env.WORKSPACE}") {
-                sh 'npm install'
+        stage('Build') {
+            steps {
+                echo 'Installing dependencies...'
+                dir("${env.WORKSPACE}") {
+                    sh 'npm install'
+                }
             }
         }
-    }
 
-    stage('Test') {
-        steps {
-            echo 'Running automated tests...'
-            dir("${env.WORKSPACE}") {
-                sh 'npm test'
+        stage('Test') {
+            steps {
+                echo 'Running automated tests...'
+                dir("${env.WORKSPACE}") {
+                    sh 'npm test'
+                }
             }
         }
     }

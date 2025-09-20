@@ -24,12 +24,11 @@ pipeline {
         }
     }
 
-        stage('Test') {
-            steps {
-                echo "Running automated tests..."
-                dir("${APP_DIR}") {
-                    sh 'npm test || true' // keep pipeline running even if no tests yet
-                }
+    stage('Test') {
+        steps {
+            echo 'Running automated tests...'
+            dir("${env.WORKSPACE}") {
+                sh 'npm test'
             }
         }
     }

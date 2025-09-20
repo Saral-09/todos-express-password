@@ -15,14 +15,14 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                echo "Installing dependencies..."
-                dir("${APP_DIR}") {
-                    sh 'npm install'
-                }
+    stage('Build') {
+        steps {
+            echo 'Installing dependencies...'
+            dir("${env.WORKSPACE}") {
+                sh 'npm install'
             }
         }
+    }
 
         stage('Test') {
             steps {

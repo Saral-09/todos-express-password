@@ -28,7 +28,8 @@
   },
   "license": "Unlicense",
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "test": "jest"
   },
   "dependencies": {
     "connect-ensure-login": "^0.1.1",
@@ -46,5 +47,8 @@
     "passport-local": "^1.0.0",
     "pluralize": "^8.0.0",
     "sqlite3": "^5.0.2"
+  },
+  "devDependencies": {
+    "jest": "^30.1.3"
   }
 }

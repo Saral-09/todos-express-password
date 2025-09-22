@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        DOCKER_IMAGE = "saral09/todos-express-password"
+    }
+
     stages {
         stage('Checkout') {
             steps {
@@ -29,16 +33,16 @@ pipeline {
             steps {
                 script {
                     echo "Building Docker image..."
-                    sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
-                    sh "docker tag ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
+                    sh "docker build -t ${env.DOCKER_IMAGE}:${BUILD_NUMBER} ."
+                    sh "docker tag ${env.DOCKER_IMAGE}:${BUILD_NUMBER} ${env.DOCKER_IMAGE}:latest"
 
                     echo "Pushing Docker image to Docker Hub..."
                     withCredentials([usernamePassword(credentialsId: 'DockerHub', 
                                                      usernameVariable: 'DOCKER_USER', 
                                                      passwordVariable: 'DOCKER_PASS')]) {
                         sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
-                        sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
-                        sh "docker push ${DOCKER_IMAGE}:latest"
+                        sh "docker push ${env.DOCKER_IMAGE}:${BUILD_NUMBER}"
+                        sh "docker push ${env.DOCKER_IMAGE}:latest"
                     }
                 }
             }

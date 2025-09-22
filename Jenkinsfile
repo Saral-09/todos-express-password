@@ -25,12 +25,22 @@ pipeline {
             }
         }
 
-        stage('Deploy (Docker)') {
+        stage('Docker Build & Push') {
             steps {
-                echo 'Building Docker image...'
-                sh 'docker build -t todos-app .'
-                echo 'Running Docker container...'
-                sh 'docker run -d -p 3000:3000 --name todos-container todos-app || echo "Container may already be running"'
+                script {
+                    echo "Building Docker image..."
+                    sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
+                    sh "docker tag ${DOCKER_IMAGE}:${BUILD_NUMBER} ${DOCKER_IMAGE}:latest"
+
+                    echo "Pushing Docker image to Docker Hub..."
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', 
+                                                     usernameVariable: 'DOCKER_USER', 
+                                                     passwordVariable: 'DOCKER_PASS')]) {
+                        sh 'echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin'
+                        sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                        sh "docker push ${DOCKER_IMAGE}:latest"
+                    }
+                }
             }
         }
     }

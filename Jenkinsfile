@@ -29,6 +29,24 @@ pipeline {
             }
         }
 
+        stage('Code Quality Analysis') {
+            steps {
+                script {
+                    withSonarQubeEnv('SERVER-SONAR') {
+                        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
+                            sh """
+                                sonar-scanner \
+                                -Dsonar.projectKey=todos-express-password \
+                                -Dsonar.sources=. \
+                                -Dsonar.host.url=$SONAR_HOST_URL \
+                                -Dsonar.login=$SONAR_TOKEN
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
         stage('Docker Build & Push') {
             steps {
                 script {
@@ -50,8 +68,7 @@ pipeline {
     }
 
     post {
-        always
-        {
+        always {
             cleanWs()
         }
         success {

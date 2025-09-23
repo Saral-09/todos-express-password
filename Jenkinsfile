@@ -45,16 +45,18 @@ pipeline {
                 }
             }
         }
-        
-        stage('Security Analysis') {
+
+        stage('Security Scan') {
             steps {
-                echo 'Running security checks with npm audit...'
-                sh 'npm audit --audit-level=high || true'
-                echo 'Attempting automatic fix for vulnerabilities...'
-                sh 'npm audit fix || true'
+                echo "Running Trivy scan on Docker image..."
+                sh """
+                    trivy image --exit-code 0 --severity MEDIUM,HIGH,CRITICAL \
+                    --format template --template "@contrib/html.tpl" -o trivy-report.html ${env.DOCKER_IMAGE}:latest || true
+                """
+                publishHTML([reportDir: '.', reportFiles: 'trivy-report.html', reportName: 'Trivy Security Report'])
             }
         }
-        
+
         stage('Docker Build & Push') {
             steps {
                 script {

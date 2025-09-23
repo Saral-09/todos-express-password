@@ -30,19 +30,12 @@ pipeline {
         }
 
         stage('Code Quality Analysis') {
+            environment {
+                scannerHome = tool 'qube';
+            }
             steps {
-                script {
-                    withSonarQubeEnv('SERVER-SONAR') {
-                        withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
-                            sh """
-                                sonar-scanner \
-                                -Dsonar.projectKey=todos-express-password \
-                                -Dsonar.sources=. \
-                                -Dsonar.host.url=$SONAR_HOST_URL \
-                                -Dsonar.login=$SONAR_TOKEN
-                            """
-                        }
-                    }
+                withSonarQubeEnv('SERVER-SONAR') {
+                    sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=todos-express-password -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN"
                 }
             }
         }

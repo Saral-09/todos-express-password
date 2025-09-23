@@ -34,12 +34,14 @@ pipeline {
                 scannerHome = tool 'sonarqube-tool'
             }
             steps {
-                withSonarQubeEnv(credentialsId: 'sonarqube', installationName: 'sonarqube-installation') {
-                    sh "${scannerHome}/bin/sonar-scanner " +
-                       "-Dsonar.projectKey=todos-express-password " +
-                       "-Dsonar.sources=. " +
-                       "-Dsonar.host.url=http://localhost:9000/ " +
-                       "-Dsonar.login=sqp_1a8e9e43751237467a78f44ebbff4840ac649340"
+                withSonarQubeEnv('sonarqube-installation') {
+                    sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=myproject \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONAR_AUTH_TOKEN
+                    """
                 }
             }
         }

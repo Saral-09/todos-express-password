@@ -51,18 +51,22 @@ pipeline {
                 echo "Running Trivy scan on Docker image..."
                 sh """
                     trivy image --scanners vuln --exit-code 0 \
-                    --severity MEDIUM,HIGH,CRITICAL \
-                    --format template --template "@contrib/html.tpl" \
-                    -o trivy-report.html ${env.DOCKER_IMAGE}:latest || true
+                    --severity HIGH,CRITICAL \
+                    -o trivy-report.txt ${env.DOCKER_IMAGE}:latest || true
                 """
-                publishHTML([
-                    allowMissing: true,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: '.',
-                    reportFiles: 'trivy-report.html',
-                    reportName: 'Trivy Security Report'
-                ])
+                emailext(
+                    subject: "Trivy Scan Report for Build #${env.BUILD_NUMBER}",
+                    body: """\
+                    Hello,
+                    
+                    Please find the Trivy container security scan report attached for Build #${env.BUILD_NUMBER}.
+                    
+                    Regards,  
+                    Jenkins
+                    """,
+                    attachmentsPattern: 'trivy-report.txt',
+                    to: 'team@example.com'
+                )
             }
         }
 

@@ -31,13 +31,15 @@ pipeline {
 
         stage('Code Quality Analysis') {
             environment {
-                scannerHome = tool 'qube' // Must match your SonarQube Scanner installation name
+                scannerHome = tool 'qube'
             }
             steps {
-                withSonarQubeEnv('SERVER-SONAR') { // Must match your SonarQube server config
-                    withCredentials([string(credentialsId: 'sonarqube', variable: 'SONAR_TOKEN')]) {
-                        sh "${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=todos-express-password -Dsonar.sources=. -Dsonar.host.url=$SONAR_HOST_URL -Dsonar.login=$SONAR_TOKEN"
-                    }
+                withSonarQubeEnv(credentialsId: 'SERVER-SONAR', installationName: 'SERVER-SONAR') {
+                    sh "${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=todos-express-password \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url="http://localhost:9000/" \
+                        -Dsonar.login=$SONAR_TOKEN"
                 }
             }
         }

@@ -45,7 +45,14 @@ pipeline {
                 }
             }
         }
-
+        
+        stage('Security Analysis') {
+            steps {
+                echo 'Running security checks with npm audit...'
+                sh 'npm audit --audit-level=high'
+            }
+        }
+        
         stage('Docker Build & Push') {
             steps {
                 script {

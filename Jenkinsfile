@@ -50,6 +50,7 @@ pipeline {
             steps {
                 echo "Running Trivy scan on Docker image..."
                 sh """
+                    touch trivy-report.txt
                     trivy image --scanners vuln --exit-code 0 \
                     --severity HIGH,CRITICAL \
                     -o trivy-report.txt ${env.DOCKER_IMAGE}:latest || true

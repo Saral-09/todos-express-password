@@ -39,7 +39,7 @@ pipeline {
                        "-Dsonar.projectKey=todos-express-password " +
                        "-Dsonar.sources=. " +
                        "-Dsonar.host.url=http://localhost:9000/ " +
-                       "-Dsonar.login=${env.SONAR_TOKEN}"
+                       "-Dsonar.login=sqp_1a8e9e43751237467a78f44ebbff4840ac649340"
                 }
             }
         }

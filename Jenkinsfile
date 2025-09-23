@@ -55,17 +55,17 @@ pipeline {
                     -o trivy-report.txt ${env.DOCKER_IMAGE}:latest || true
                 """
                 emailext(
+                    to: 'saralbajimaya09@gmail.com',
                     subject: "Trivy Scan Report for Build #${env.BUILD_NUMBER}",
                     body: """\
-                    Hello,
-                    
-                    Please find the Trivy container security scan report attached for Build #${env.BUILD_NUMBER}.
-                    
-                    Regards,  
-                    Jenkins
+Hello,
+
+Please find the Trivy container security scan report attached for Build #${env.BUILD_NUMBER}.
+
+Regards,  
+Jenkins
                     """,
-                    attachmentsPattern: 'trivy-report.txt',
-                    to: 'team@example.com'
+                    attachmentsPattern: 'trivy-report.txt'
                 )
             }
         }

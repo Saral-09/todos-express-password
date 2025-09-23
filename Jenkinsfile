@@ -51,7 +51,7 @@ pipeline {
                 echo 'Running security checks with npm audit...'
                 sh 'npm audit --audit-level=high || true'
                 echo 'Attempting automatic fix for vulnerabilities...'
-                sh 'npm audit fix --force || true'
+                sh 'npm audit fix || true'
             }
         }
         

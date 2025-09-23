@@ -86,7 +86,29 @@ pipeline {
                 }
             }
         }
-    }
+        
+    stage('Release') {
+        steps {
+            script {
+                echo "Creating Git tag for release..."
+                sh """
+                    git config user.name "Jenkins"
+                    git config user.email "jenkins@example.com"
+                    git tag -a "v${BUILD_NUMBER}" -m "Release build ${BUILD_NUMBER}"
+                    git push origin "v${BUILD_NUMBER}"
+                """
+                
+                echo "Tagging Docker image for release..."
+                sh """
+                    docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:v${BUILD_NUMBER}
+                    docker push ${DOCKER_IMAGE}:v${BUILD_NUMBER}
+                """
+                
+                echo "Release v${BUILD_NUMBER} completed successfully!"
+            }
+        }
+    }  
+}
 
     post {
         always {

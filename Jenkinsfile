@@ -31,11 +31,10 @@ pipeline {
 
         stage('Code Quality Analysis') {
             environment {
-                scannerHome = tool 'qube' // must match your SonarQube Scanner installation name
+                scannerHome = tool 'sonarqube-tool'
             }
             steps {
-                withSonarQubeEnv(credentialsId: 'SERVER-SONAR', installationName: 'SERVER-SONAR') {
-                    // Use single quotes for Groovy string, double quotes inside sonar-scanner arguments
+                withSonarQubeEnv(credentialsId: 'sonarqube', installationName: 'sonarqube-installation') {
                     sh "${scannerHome}/bin/sonar-scanner " +
                        "-Dsonar.projectKey=todos-express-password " +
                        "-Dsonar.sources=. " +

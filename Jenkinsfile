@@ -73,24 +73,20 @@ pipeline {
                 }
             }
         }
-    }
 
     stage('Deploy') {
-    steps {
-            echo "Deploying Docker image..."
-            script {
-                sh """
-                docker stop todos-app || true
-                docker rm todos-app || true
-                """
-    
-                sh """
-                docker run -d --name todos-app -p 3000:3000 ${env.DOCKER_IMAGE}:latest
-                """
+        steps {
+                echo "Deploying Docker image..."
+                script {
+                    sh """
+                    docker stop todos-app || true
+                    docker rm todos-app || true
+                    docker run -d --name todos-app -p 3000:3000 ${env.DOCKER_IMAGE}:latest
+                    """
+                }
             }
         }
     }
-
 
     post {
         always {

@@ -45,17 +45,26 @@ pipeline {
                 }
             }
         }
-
+        
         stage('Security Scan') {
             steps {
                 echo "Running Trivy scan on Docker image..."
                 sh """
                     trivy image --exit-code 0 --severity MEDIUM,HIGH,CRITICAL \
-                    --format template --template "@contrib/html.tpl" -o trivy-report.html ${env.DOCKER_IMAGE}:latest || true
+                    --format template --template "@contrib/html.tpl" \
+                    -o trivy-report.html ${env.DOCKER_IMAGE}:latest || true
                 """
-                publishHTML([reportDir: '.', reportFiles: 'trivy-report.html', reportName: 'Trivy Security Report'])
+                publishHTML([
+                    allowMissing: true,
+                    alwaysLinkToLastBuild: true,
+                    keepAll: true,
+                    reportDir: '.',
+                    reportFiles: 'trivy-report.html',
+                    reportName: 'Trivy Security Report'
+                ])
             }
         }
+
 
         stage('Docker Build & Push') {
             steps {

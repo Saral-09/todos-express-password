@@ -50,7 +50,8 @@ pipeline {
             steps {
                 echo "Running Trivy scan on Docker image..."
                 sh """
-                    trivy image --exit-code 0 --severity MEDIUM,HIGH,CRITICAL \
+                    trivy image --scanners vuln --exit-code 0 \
+                    --severity MEDIUM,HIGH,CRITICAL \
                     --format template --template "@contrib/html.tpl" \
                     -o trivy-report.html ${env.DOCKER_IMAGE}:latest || true
                 """

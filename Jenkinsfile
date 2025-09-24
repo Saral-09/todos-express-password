@@ -70,7 +70,7 @@ pipeline {
                 )
             }
         }
-*/
+
         stage('Docker Build & Push') {
             steps {
                 script {
@@ -89,22 +89,23 @@ pipeline {
                 }
             }
         }
-
-        stage('Deploy') {
-            steps {
-                script {
-                    echo "Deploying Docker image to remote VM..."
-                    sh """
-                    ssh kali@192.168.1.233 '
-                        docker pull ${env.DOCKER_IMAGE}:latest
-                        docker stop todos-app || true
-                        docker rm todos-app || true
-                        docker run -d --name todos-app -p 3000:3000 ${env.DOCKER_IMAGE}:latest
-                    '
-                    """
-                }
+*/
+    stage('Deploy') {
+        steps {
+            script {
+                echo "Deploying Docker image to remote VM..."
+                sh """
+                ssh kali@192.168.1.233 '
+                    sudo docker pull ${env.DOCKER_IMAGE}:latest
+                    sudo docker stop todos-app || true
+                    sudo docker rm todos-app || true
+                    sudo docker run -d --name todos-app -p 3000:3000 ${env.DOCKER_IMAGE}:latest
+                '
+                """
             }
         }
+    }
+
                 
     stage('Release') {
         steps {

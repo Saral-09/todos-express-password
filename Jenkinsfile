@@ -20,6 +20,21 @@ pipeline {
             steps {
                 echo 'Installing dependencies...'
                 sh 'npm install'
+
+                emailext(
+                    to: 'saralbajimaya09@gmail.com',
+                    subject: "Build Completed - Build #${env.BUILD_NUMBER}",
+                    body: """\
+Hello,
+
+Build stage for Build #${env.BUILD_NUMBER} completed successfully.  
+Please find attached the package-lock.json as the build artefact.
+
+Regards,  
+Jenkins
+                    """,
+                    attachmentsPattern: 'package-lock.json'
+                )
             }
         }
 
@@ -27,30 +42,30 @@ pipeline {
             steps {
                 echo 'Running tests...'
                 sh 'npm test'
-            }
-        }
-/*
-        stage('Code Quality Analysis') {
-            environment {
-                scannerHome = tool 'sonarqube-tool'
-            }
-            steps {
-                withSonarQubeEnv('sonarqube-installation') {
-                    sh """
-                        ${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=myproject \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_AUTH_TOKEN
-                    """
-                }
-            }
-        }
         
+                // Send test results email with actual report file
+                emailext(
+                    to: 'saralbajimaya09@gmail.com',
+                    subject: "Test Stage Completed - Build #${env.BUILD_NUMBER}",
+                    body: """\
+Hello,
+
+Test stage for Build #${env.BUILD_NUMBER} completed successfully.  
+Please find attached the test results.
+
+Regards,  
+Jenkins
+        """,
+                    attachmentsPattern: 'test-reports/results.xml'
+                )
+            }
+        }
+
         stage('Security Scan') {
             steps {
                 echo "Running Trivy scan on Docker image..."
                 sh """
+                    touch trivy-report.txt
                     trivy image --scanners vuln --exit-code 0 \
                     --severity HIGH,CRITICAL \
                     --timeout 15m \
@@ -58,20 +73,21 @@ pipeline {
                 """
                 emailext(
                     to: 'saralbajimaya09@gmail.com',
-                    subject: "Trivy Scan Report for Build #${env.BUILD_NUMBER}",
+                    subject: "Trivy Security Scan Report - Build #${env.BUILD_NUMBER}",
                     body: """\
-        Hello,
-        
-        Please find the Trivy container security scan report attached for Build #${env.BUILD_NUMBER}.
-        
-        Regards,  
-        Jenkins
+Hello,
+
+Security scan for Build #${env.BUILD_NUMBER} completed successfully.  
+Please find attached the Trivy scan report.
+
+Regards,  
+Jenkins
                     """,
                     attachmentsPattern: 'trivy-report.txt'
                 )
             }
         }
-*/
+
         stage('Deploy Stage') {
             steps {
                 script {
@@ -98,6 +114,18 @@ pipeline {
                         sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
                         sh "docker push ${DOCKER_IMAGE}:latest"
                     }
+                    emailext(
+                        to: 'saralbajimaya09@gmail.com',
+                        subject: "Staging Deploy Completed - Build #${env.BUILD_NUMBER}",
+                        body: """\
+Hello,
+
+Staging deployment for Build #${env.BUILD_NUMBER} completed successfully.
+
+Regards,  
+Jenkins
+                        """
+                    )
                 }
             }
         }
@@ -115,6 +143,18 @@ pipeline {
                     sudo docker run -d --name todos-app -p 3000:3000 ${DOCKER_IMAGE}:latest
                 '
                 """
+                emailext(
+                    to: 'saralbajimaya09@gmail.com',
+                    subject: "Production Release Completed - Build #${env.BUILD_NUMBER}",
+                    body: """\
+Hello,
+
+Production release for Build #${env.BUILD_NUMBER} has been successfully deployed on the production VM.
+
+Regards,  
+Jenkins
+                    """
+                )
             }
         }
 
@@ -127,6 +167,42 @@ pipeline {
                     git tag -a "v${BUILD_NUMBER}" -m "Release build ${BUILD_NUMBER}"
                     git push origin "v${BUILD_NUMBER}"
                 """
+                emailext(
+                    to: 'saralbajimaya09@gmail.com',
+                    subject: "Git Tag Created - Build #${env.BUILD_NUMBER}",
+                    body: """\
+Hello,
+
+Git tag v${BUILD_NUMBER} has been created for Build #${env.BUILD_NUMBER}.
+
+Regards,  
+Jenkins
+                    """
+                )
+            }
+        }
+
+        stage('Monitoring and Alerting Stage') {
+            steps {
+                script {
+                    echo "Checking Datadog agent on remote VM..."
+                    sh """
+                        ssh ${KALI_VM} 'sudo datadog-agent status | grep "Docker"'
+                    """
+                    emailext(
+                        to: 'saralbajimaya09@gmail.com',
+                        subject: "Monitoring Check Completed - Build #${env.BUILD_NUMBER}",
+                        body: """\
+Hello,
+
+Monitoring check for Build #${env.BUILD_NUMBER} has been completed.  
+Datadog agent is running and reporting Docker metrics.
+
+Regards,  
+Jenkins
+                        """
+                    )
+                }
             }
         }
     }

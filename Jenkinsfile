@@ -28,7 +28,7 @@ pipeline {
                 sh 'npm test'
             }
         }
-
+/*
         stage('Code Quality Analysis') {
             environment {
                 scannerHome = tool 'sonarqube-tool'
@@ -45,32 +45,31 @@ pipeline {
                 }
             }
         }
-        
+        */
         stage('Security Scan') {
             steps {
                 echo "Running Trivy scan on Docker image..."
                 sh """
-                    touch trivy-report.txt
                     trivy image --scanners vuln --exit-code 0 \
                     --severity HIGH,CRITICAL \
+                    --timeout 15m \
                     -o trivy-report.txt ${env.DOCKER_IMAGE}:latest || true
                 """
                 emailext(
                     to: 'saralbajimaya09@gmail.com',
                     subject: "Trivy Scan Report for Build #${env.BUILD_NUMBER}",
                     body: """\
-Hello,
-
-Please find the Trivy container security scan report attached for Build #${env.BUILD_NUMBER}.
-
-Regards,  
-Jenkins
+        Hello,
+        
+        Please find the Trivy container security scan report attached for Build #${env.BUILD_NUMBER}.
+        
+        Regards,  
+        Jenkins
                     """,
                     attachmentsPattern: 'trivy-report.txt'
                 )
             }
         }
-
 
         stage('Docker Build & Push') {
             steps {

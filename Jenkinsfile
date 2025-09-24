@@ -61,6 +61,43 @@ Jenkins
             }
         }
 
+        stage('Code Quality Analysis') {
+            environment {
+                scannerHome = tool 'sonarqube-tool'
+            }
+            steps {
+                script {
+                    echo "Running SonarQube code quality analysis..."
+                    withSonarQubeEnv('sonarqube-installation') {
+                        sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=myproject \
+                            -Dsonar.sources=. \
+                            -Dsonar.host.url=$SONAR_HOST_URL \
+                            -Dsonar.login=$SONAR_AUTH_TOKEN \
+                            | tee sonar-report.txt
+                        """
+                    }
+        
+                    echo "Sending SonarQube report via email..."
+                    emailext(
+                        to: 'saralbajimaya09@gmail.com',
+                        subject: "Code Quality Report for Build #${env.BUILD_NUMBER}",
+                        body: """\
+Hello,
+
+Please find the SonarQube code quality report attached for Build #${env.BUILD_NUMBER}.
+
+Regards,  
+Jenkins
+                        """,
+                        attachmentsPattern: 'sonar-report.txt'
+                    )
+                }
+            }
+        }
+
+
         stage('Security Scan') {
             steps {
                 echo "Running Trivy scan on Docker image..."

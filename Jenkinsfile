@@ -45,7 +45,7 @@ pipeline {
                 }
             }
         }
-        */
+        
         stage('Security Scan') {
             steps {
                 echo "Running Trivy scan on Docker image..."
@@ -70,7 +70,7 @@ pipeline {
                 )
             }
         }
-
+*/
         stage('Docker Build & Push') {
             steps {
                 script {
@@ -90,19 +90,22 @@ pipeline {
             }
         }
 
-    stage('Deploy') {
-        steps {
-                echo "Deploying Docker image..."
+        stage('Deploy') {
+            steps {
                 script {
+                    echo "Deploying Docker image to remote VM..."
                     sh """
-                    docker stop todos-app || true
-                    docker rm todos-app || true
-                    docker run -d --name todos-app -p 3000:3000 ${env.DOCKER_IMAGE}:latest
+                    ssh kali@192.168.1.233 '
+                        docker pull ${env.DOCKER_IMAGE}:latest
+                        docker stop todos-app || true
+                        docker rm todos-app || true
+                        docker run -d --name todos-app -p 3000:3000 ${env.DOCKER_IMAGE}:latest
+                    '
                     """
                 }
             }
         }
-        
+                
     stage('Release') {
         steps {
             script {

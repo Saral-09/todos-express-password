@@ -167,18 +167,6 @@ Jenkins
                     git tag -a "v${BUILD_NUMBER}" -m "Release build ${BUILD_NUMBER}"
                     git push origin "v${BUILD_NUMBER}"
                 """
-                emailext(
-                    to: 'saralbajimaya09@gmail.com',
-                    subject: "Git Tag Created - Build #${env.BUILD_NUMBER}",
-                    body: """\
-Hello,
-
-Git tag v${BUILD_NUMBER} has been created for Build #${env.BUILD_NUMBER}.
-
-Regards,  
-Jenkins
-                    """
-                )
             }
         }
 
